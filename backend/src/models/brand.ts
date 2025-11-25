@@ -4,6 +4,7 @@ export type Brand = {
   id: string;
   name: string;
   url: string;
+  logo: string;
   settings?: BrandSettings;
 };
 
