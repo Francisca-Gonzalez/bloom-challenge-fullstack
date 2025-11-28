@@ -1,108 +1,117 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+
 import Image from 'next/image';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 
 export default function BrandPage() {
-  const params = useParams();
-  const [data, setData] = useState<any>(null);
-  const [faqData, setFaqData] = useState<any[]>([]);
+  const { id } = useParams();
+  const [brand, setBrand] = useState<any>(null);
+  const [settings, setSettings] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!params?.id) return;
+    if (!id) return;
 
-    fetch(`http://localhost:8000/brands/${params.id}`)
-      .then(res => res.json())
-      .then(setData);
+    const fetchBrand = async () => {
+      try {
+        const response = await fetch(`http://localhost:8000/brands/${id}`, {
+          cache: "no-store"
+        });
 
-    fetch('http://localhost:8000/faqs')
-      .then(res => res.json())
-      .then(setFaqData);
-  }, [params?.id]);
+        if (!response.ok) {
+          throw new Error("No se encontró la marca");
+        }
+
+        const data = await response.json();
+        setBrand(data);
+        setSettings(data.settings);
+        console.log("Fetched brand:", data);
+      } catch (error) {
+        console.error("Error fetching brand:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBrand();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center">
+        <CircularProgress color="inherit" />
+      </div>
+    );
+  }
+
+  if (!brand) {
+    return <div className="text-center mt-10">No se encontró la marca.</div>;
+  }
 
   return (
-    !data || !faqData || faqData.length === 0 || !data.settings ? (
-      <div className="flex items-center justify-center h-full w-full mt-8">
-        <div className="w-12 h-12 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
-      </div>
-    ) : (
       <div className="flex flex-col items-center py-4 lg:px-16 lg:py-8 lg:pb-6">
-        <div className="w-full lg:w-3/5">
-          <div className="flex flex-col items-center">
-            <Image src={data.logo} alt={data.name} width={200} height={200} />
-          </div>
-          <div className="my-5 border-t border-gray-200"></div>
-          <h1 className="w-full text-center">preguntas frecuentes</h1>
-          <div className="my-5 border-t border-gray-200"></div>
-          <div className="flex w-full flex-row justify-center px-4 py-6">
-            <div className="w-full text-justify">
-              <h1 className="mb-6">preguntas frecuentes al vender</h1>
-              {faqData.map((question: any) => (
-              <div key={question.id}>
-                {(() => {
-                  switch (question.id) {
-                    case 1:
-                      return (
-                        <div>
-                          <h3 className="text-left font-bold my-2">{question.question}</h3>
-                          <p>{question.defaultAnswer}</p>
-                        </div>
-                      )
-                    case 2:
-                      const shipping = data.settings.shippingArticle;
-                      return (
-                        <div>
-                          <h3 className="text-left font-bold my-2">{question.question}</h3>
-                          <p>{shipping.description}</p>
-                          {shipping.bullets && (
-                            <ul className="list-disc ml-5">
-                              {shipping.bullets.map((bullet: string, index: number) => (
-                                <li key={index}>{bullet}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      );
-                    case 3:
-                      return (  
-                        <div>
-                          <h3 className="text-left font-bold my-2">{question.question}</h3>
-                          <p>{question.defaultAnswer}</p>
-                        </div>
-                      )
-                    case 4:
-                      const additionalCosts = data.settings.additionalCosts;
-                      return (
-                        <div>
-                          <h3 className="text-left font-bold my-2">{question.question}</h3>
-                          <p>{additionalCosts.description}</p>
-                          {additionalCosts.bullets && (
-                            <ul className="list-disc ml-5">
-                              {additionalCosts.bullets.map((bullet: string, index: number) => (
-                                <li key={index}>{bullet}</li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
-                      )
-                    case 5:
-                      return data.settings.couponAvailability ? (
-                        <div>
-                          <h3 className="text-left font-bold my-2">{question.question}</h3>
-                          <p>{data.settings.additionalCosts.description}</p>
-                        </div>
-                        ) : null;
-                    default:
-                      return null;
-                  }
-                })()}
-                {data.settings.couponAvailability || question.id !== 5 ? (<div className="my-5 border-t border-gray-200"></div>):null}
+          <div className="w-full lg:w-3/5">
+            <div className="flex flex-col items-center">
+              <Image src={brand.logo} alt={brand.name} width={200} height={200} priority/>
+            </div>
+            <div className="my-5 border-t border-gray-200"></div>
+            <h1 className="w-full text-center text-gray-600 font-semibold text-xl">preguntas frecuentes</h1>
+            <div className="my-5 border-t border-gray-200"></div>
+            <div className="flex w-full flex-row justify-center px-4 py-6">
+              <div className="w-full text-justify">
+                  <div>
+                    <h3 className="text-left font-bold my-2">¿Cómo puedo publicar un producto para la venta?</h3>
+                    <p>¡Publicar tu producto es muy fácil! Simplemente haz clic en <a href={brand.url} target="_blank" className="text-blue-600 underline">Vender</a>, crea una cuenta y sigue el proceso de publicación. Una vez que completes el formulario de venta, la publicación será revisada por nuestro equipo y en un plazo máximo de 24 horas, te avisaremos si está aprobada o rechazada. Después de ser revisada y aprobada, se hará pública. Si hay algún problema, recibirás un correo electrónico pidiendo hacer cambios antes de que pueda ser aceptada.</p>
+                  </div>
+                  <div className="my-5 border-t border-gray-200"></div>
+                  <div>
+                    <h3 className="text-left font-bold my-2">¿Cómo envío mi artículo después de que alguien lo compra?</h3>
+                    <p>{settings.shippingArticle.description}</p>
+                      {settings.shippingArticle.bullets && (
+                        <ul className="list-disc ml-5">
+                          {settings.shippingArticle.bullets.map((bullet: string, index: number) => (
+                            <li key={index}>{bullet}</li>
+                          ))}
+                        </ul>
+                      )}
+                  </div>
+                  <div className="my-5 border-t border-gray-200"></div>
+                  <div>
+                    <h3 className="text-left font-bold my-2">¿Cómo y cuándo recibo el pago?</h3>
+                    <p>{settings.payment}</p>
+                  </div>
+                  <div className="my-5 border-t border-gray-200"></div>
+                  <div>
+                    <h3 className="text-left font-bold my-2">¿Hay cobros adicionales por vender mi producto por acá?</h3>
+                    <p>{settings.additionalCosts.description}</p>
+                      {settings.additionalCosts.bullets && (
+                        <ul className="list-disc ml-5">
+                          {settings.additionalCosts.bullets.map((bullet: string, index: number) => (
+                            <li key={index}>{bullet}</li>
+                          ))}
+                        </ul>
+                    )}
+                  </div>
+                  <div className="my-5 border-t border-gray-200"></div>
+                  {settings.couponAvailability ? (
+                    <>
+                      <div>
+                        <h3 className="text-left font-bold my-2">Política de uso de cupones</h3>
+                        <p>Los cupones que recibas por la venta de tus productos tienen las siguientes restricciones:</p>
+                        <ul className="list-disc ml-5">
+                          <li>Se pueden utilizar únicamente para compras en el sitio web <a href={brand.url} target="_blank" className="text-blue-600 underline">{brand.name}</a></li>
+                          <li>Tiene un tiempo máximo para ser utilizado de 6 meses.</li>
+                          <li>Está restringido a un monto mínimo de pedido para que pueda utilizarse en el ecommerce. El monto mínimo está definido por el monto del cupón + $1.000 CLP.</li>
+                        </ul>
+                      </div>
+                      <div className="my-5 border-t border-gray-200"></div>
+                    </>
+                  ) : null}
               </div>
-            ))}
             </div>
           </div>
         </div>
-      </div>
-    )
-  );
+    );
 }
