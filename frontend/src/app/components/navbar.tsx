@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Navbar() {
   return (
-    <nav className="w-full bg-white shadow-sm px-6 py-3 flex items-center">
+    <nav className="group sticky inset-x-0 top-0 z-50 w-full bg-white shadow-sm px-6 py-3 flex items-center">
       <Link href="/" className="flex items-center gap-3">
         <Image
             className="h-14 w-auto self-end"

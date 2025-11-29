@@ -27,7 +27,6 @@ export default function BrandPage() {
         const data = await response.json();
         setBrand(data);
         setSettings(data.settings);
-        console.log("Fetched brand:", data);
       } catch (error) {
         console.error("Error fetching brand:", error);
       } finally {
@@ -57,7 +56,7 @@ export default function BrandPage() {
               <Image src={brand.logo} alt={brand.name} width={200} height={200} priority/>
             </div>
             <div className="my-5 border-t border-gray-200"></div>
-            <h1 className="w-full text-center text-gray-600 font-semibold text-xl">preguntas frecuentes</h1>
+            <h1 className="w-full text-center text-gray-600 font-semibold text-xl tracking-widest">preguntas frecuentes</h1>
             <div className="my-5 border-t border-gray-200"></div>
             <div className="flex w-full flex-row justify-center px-4 py-6">
               <div className="w-full text-justify">

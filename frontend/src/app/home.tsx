@@ -13,7 +13,6 @@ export default async function Home() {
       <h1 className="!normal-case text-4xl font-800 text-center mt-2">Desafío Dev</h1>
     </div>
 
-
     <div className="grid grid-cols-2 gap-y-16 place-items-center p-8 mx-50">
       {brands.map((brand: any) => (
         <Link
@@ -29,7 +28,6 @@ export default async function Home() {
             className="object-contain transition-opacity duration-300 group-hover:opacity-20"
           />
 
-          {/* Overlay negro */}
           <div className="
             absolute inset-0 flex items-center justify-center
             opacity-0 group-hover:opacity-100
